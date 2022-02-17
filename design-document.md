@@ -148,6 +148,7 @@ Creates contrasts based on the output of `Estimator` and a contrast function.
 	+ `h_func`: ratio function
 
 - Method Overrides:
+
 	`jacobian`: uses closed form expression for jacobian of ratio
 
 
