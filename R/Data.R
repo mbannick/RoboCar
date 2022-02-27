@@ -1,84 +1,84 @@
-#' Data Class
-#'
-#' @description Basic data class used to store data and data attributes
-#'
-#' @slot data A data.frame containing all of the data
-#' @slot treat_col Column name of treatment variable
-#' @slot response_col Column name of response variable
-#' @slot strata_cols Column name(s) of strata variables
-#' @slot covariate_cols Column name(s) of covariates to adjust for
-#'
-setClass("Data",
+# Functions for validating data and creating data classes
+# to be used across all analysis methods.
 
-         slots = c(
-           data = "data.frame",
-           treat_col = "character",
-           response_col = "character",
-           strata_cols = "character",
-           covariate_cols = "character"
-         )
-)
-setValidity("Data", function(object){
+.check.response <- function(x){
+  if(class(x) != "numeric"){
+    return("Response column must be numeric.")
+  }
+}
+
+.check.event <- function(x){
+  if(!all(x %in% c(0, 1))){
+    return("Event column must contain only 0 and 1.")
+  }
+}
+
+.return.error <- function(err){
+  if(length(errors) > 0) stop(paste0(errors, sep="\n"))
+}
+
+.check.attributes <- function(x, ...){
+  required <- c(...)
+  existing <- names(x)
+  missing <- which(!required %in% existing)
+
+  if(length(missing > 0)){
+    return(paste0("Missing data attributes ", paste(missing)))
+  }
+}
+
+# Generic function for data validation
+validate <- function (data) {
+  UseMethod("validate", data)
+}
+
+# Validate linear model data
+validate.RoboDataLinear <- function(data){
 
   errors <- character()
+  errors <- c(errors, .check.attributes(data, "treat", "response"))
+  errors <- c(errors, .check.response(data))
 
-  if(length(object@response_col) != 1) errors <- c(errors, "Must have exactly one response column.")
-  if(length(object@treat_col) != 1) errors <- c(errors, "Must have exactly one treatment column.")
-  if(length(errors > 0)) return(errors)
+  .return.error(errors)
+}
 
-  df <- object@data
-  response <- df[[object@response_col]]
-
-  if(class(response) != "numeric"){
-    msg <- "Response column must be numeric."
-    errors <- c(errors, msg)
-  }
-
-  columns <- c(
-    object@treat_col,
-    object@response_col,
-    object@strata_cols,
-    object@covariate_cols
-  )
-  errors <- c(errors, unlist(sapply(columns, .check.colnames, data=df)))
-
-  if(length(errors) > 0) return(errors)
-})
-
-#' DataTTE Class
-#'
-#' @description Data class used to store content and attributes for time-to-event data
-#'
-#' @inheritParams Data
-#'
-#' @slot response_col Column name of "time" variable
-#' @slot event_col Column name of "event" variable (coded as 0: censored, 1: observed)
-#'
-setClass("DataTTE",
-
-         contains="Data",
-
-         slots=list(
-           event_col = "character"
-         )
-)
-
-setValidity("DataTTE", function(object){
+validate.RoboDataGLM <- function(data){
 
   errors <- character()
+  .return.error(errors)
 
-  if(length(object@event_col) != 1) errors <- c(errors, "Must have exactly one event column.")
-  if(length(errors) > 0) return(errors)
+}
 
-  errors <- c(errors, .check.colnames(object@event_col, data=df))
+# Validate time-to-event data
+validate.RoboDataTTE <- function(data){
 
-  df <- object@data
-  events <- df[[object@event_col]]
+  errors <- character()
+  errors <- c(errors, .check.attributes(data, "treat", "response", "event"))
+  errors <- c(errors, .check.response(data))
+  errors <- c(errors, .check.event(data))
 
-  if(!all(events %in% c(0, 1))){
-    msg <- "Event column must contain only 0 and 1."
-    errors <- c(errors, msg)
+  .return.error(errors)
+}
+
+#' Takes a data frame and converts it to a list with
+#' the attributes as specified by the names passed to ...
+#'
+#' @param df data.frame with columns to extract
+#' @param classname name of class
+#' @param ... Additional names of columns to extract, or vector of names,
+#'            e.g., treat_col="treatment", or strata_cols=c("s_1", "s_2")
+.df.toclass <- function(df, classname, ...){
+
+  data <- list()
+  for(colname in ...){
+    if(!grepl("col", colname)) stop(paste0("Unrecognized column arguments ",
+                                           colname, ". All columns must have
+                                           _col or _cols as a suffix."))
+    colname <- gsub(colname, "_col", "")
+    colname <- gsub(colname, ".")
+    data[[colname]] <- df[[colname]]
   }
+  class(data) <- class
 
-  if(length(errors) > 0) return(errors)
-})
+  return(data)
+}
