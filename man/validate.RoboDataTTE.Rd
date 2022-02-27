@@ -6,6 +6,9 @@
 \usage{
 \method{validate}{RoboDataTTE}(data)
 }
+\arguments{
+\item{data}{Object of class RoboDataTTE}
+}
 \description{
 Validate time-to-event data
 }

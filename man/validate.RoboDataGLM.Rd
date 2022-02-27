@@ -6,6 +6,9 @@
 \usage{
 \method{validate}{RoboDataGLM}(data)
 }
+\arguments{
+\item{data}{Object of class RoboDataGLM}
+}
 \description{
 Validate GLM model data
 }

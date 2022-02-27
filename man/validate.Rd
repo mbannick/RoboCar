@@ -6,6 +6,9 @@
 \usage{
 validate(data)
 }
+\arguments{
+\item{data}{Object of class Data}
+}
 \description{
 Generic function for data validation
 }

@@ -6,6 +6,9 @@
 \usage{
 \method{validate}{RoboDataLinear}(data)
 }
+\arguments{
+\item{data}{Object of class RoboDataLinear}
+}
 \description{
 Validate linear model data
 }
