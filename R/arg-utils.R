@@ -1,5 +1,4 @@
-
-# Defines allowable arguments to the functions available to the users
+# Defines allowable arguments to the functions available to users
 
 .check.options <- function(var, options){
   if(!var %in% options) stop(paste0(var, " must be one of ",
