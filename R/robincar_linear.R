@@ -23,7 +23,7 @@ robincar_linear <- function(df,
   .check.vcovHC(vcovHC)
   
   # Create data object and validate
-  data <- .df.toclass(
+  data <- .make.data(
     data=df, classname="RoboDataLinear",
     treat_col=treat_col,
     response_col=response_col,
@@ -38,6 +38,7 @@ robincar_linear <- function(df,
     car_scheme=car_scheme,
     vcovHC=vcovHC
   )
+  .check.compatible_model(model, data)
   
   # Perform linear adjustment
   result <- linadjust(model, data)

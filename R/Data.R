@@ -13,8 +13,10 @@
   }
 }
 
-.return.error <- function(err){
-  if(length(err) > 0) stop(paste0(err, sep="\n"))
+.check.treat <- function(data){
+  if(class(data$treat) != "factor"){
+    return("Treatment column must be a factor variable.")
+  }
 }
 
 .check.attributes <- function(x, ...){
@@ -44,6 +46,7 @@ validate.RoboDataLinear <- function(data){
   errors <- character()
   errors <- c(errors, .check.attributes(data, "treat", "response"))
   errors <- c(errors, .check.response(data))
+  errors <- c(errors, .check.treat(data))
   
   .return.error(errors)
 }
@@ -69,6 +72,7 @@ validate.RoboDataTTE <- function(data){
   errors <- c(errors, .check.attributes(data, "treat", "response", "event"))
   errors <- c(errors, .check.response(data))
   errors <- c(errors, .check.event(data))
+  errors <- c(errors, .check.treat(data))
   
   .return.error(errors)
 }
@@ -104,4 +108,13 @@ validate.RoboDataTTE <- function(data){
   class(data) <- classname
   
   return(data)
+}
+
+.make.data <- function(df, classname, ...){
+  # Convert data frame to object
+  data <- .df.toclass(df, classname, ...)
+  
+  # Add additional data attributes
+  data$n <- nrow(df)
+  
 }

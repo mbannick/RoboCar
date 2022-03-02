@@ -3,8 +3,8 @@
 \name{.make.model}
 \alias{.make.model}
 \title{Makes a model class for the specified adjustment method
-based with attributes of covariate randomization
-scheme and vcovHC}
+with settings for covariate randomization
+scheme and vcovHC type.}
 \usage{
 .make.model(adj_method, car_scheme, vcovHC)
 }
@@ -17,6 +17,6 @@ scheme and vcovHC}
 }
 \description{
 Makes a model class for the specified adjustment method
-based with attributes of covariate randomization
-scheme and vcovHC
+with settings for covariate randomization
+scheme and vcovHC type.
 }

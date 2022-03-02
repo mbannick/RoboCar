@@ -1,11 +1,12 @@
 test_that("Data", {
-  
+
   df <- data.frame(treatment=rbinom(10, size=1, prob=0.5),
                    response=rnorm(10),
                    cov_1=rnorm(10),
                    cov_2=rnorm(10),
                    s_1=rbinom(10, size=1, prob=0.5),
                    s_2=rbinom(10, size=1, prob=0.5))
+  df$treatment <- as.factor(df$treatment)
   
   data <- .df.toclass(df, "RoboDataLinear",
                       treat_col="treatment",
@@ -25,6 +26,7 @@ test_that("Data with missing attributes", {
                    cov_2=rnorm(10),
                    s_1=rbinom(10, size=1, prob=0.5),
                    s_2=rbinom(10, size=1, prob=0.5))
+  df$treatment <- as.factor(df$treatment)
   
   data <- .df.toclass(df, "RoboDataLinear",
                       response_col="response",
@@ -42,6 +44,7 @@ test_that("Data with non-numeric response", {
                    cov_2=rnorm(10),
                    s_1=rbinom(10, size=1, prob=0.5),
                    s_2=rbinom(10, size=1, prob=0.5))
+  df$treatment <- as.factor(df$treatment)
   
   data <- .df.toclass(df, "RoboDataLinear",
                       treat_col="treatment",
