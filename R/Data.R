@@ -98,12 +98,7 @@ validate.RoboDataTTE <- function(data){
     att_name <- gsub("_cols", "", att_name)
     att_name <- gsub("_col", "", att_name)
     
-    if(length(att) == 1){
-      data[[att_name]] <- df[[att]]
-    } else {
-      data[[att_name]] <- as.matrix(df[att])
-    }
-    
+    data[[att_name]] <- as.matrix(df[att])
   }
   class(data) <- classname
   
@@ -114,7 +109,22 @@ validate.RoboDataTTE <- function(data){
   # Convert data frame to object
   data <- .df.toclass(df, classname, ...)
   
+  if(!is.null(data$treat)){
+    data$treat <- as.factor(as.vector(data$treat))
+  }
+  if(!is.null(data$response)){
+    data$response <- as.vector(data$response)
+  }
+  
   # Add additional data attributes
   data$n <- nrow(df)
+  data$k <- length(levels(data$treat))
+  data$treat_levels <- levels(data$treat) %>% as.numeric
   
+  # Estimate treatment allocation proportion
+  data$pie <- table(data$treat) %>%
+    proportions() %>%
+    as.matrix()
+  
+  return(data)
 }
