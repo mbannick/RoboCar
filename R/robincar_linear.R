@@ -9,6 +9,7 @@
 #' @param car_scheme Name of the type of covariate-adaptive randomization scheme
 #' @param adj_method Name of linear adjustment method to use
 #' @param vcovHC Type of heteroskedasticity-consistent variance estimates
+#' @param covariate_to_include_strata Whether to include strata variables in covariate adjustment. Defaults to F for ANOVA and ANCOVA; defaults to T for ANHECOVA. User may override by passing in this argument.
 #' @param conf_level Level for confidence intervals
 #' @param contrast An optional function to specify a desired contrast
 #' 
@@ -16,6 +17,7 @@
 robincar_linear <- function(df,
                             treat_col, response_col, strata_cols, covariate_cols,
                             car_scheme="simple", adj_method="ANOVA", vcovHC="HC0",
+                            covariate_to_include_strata=NULL,
                             conf_level=0.95, contrast=NULL){
   
   .check.car_scheme(car_scheme)
@@ -34,12 +36,13 @@ robincar_linear <- function(df,
   
   # Create model object
   model <- .make.model(
+    data=data,
     adj_method=adj_method,
     car_scheme=car_scheme,
-    vcovHC=vcovHC
+    vcovHC=vcovHC,
+    covariate_to_include_strata=covariate_to_include_strata
   )
-  .check.compatible_model(model, data)
-  
+
   # Perform linear adjustment
   result <- linadjust(model, data)
   

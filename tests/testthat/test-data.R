@@ -4,6 +4,7 @@ test_that("Data", {
                    response=rnorm(10),
                    cov_1=rnorm(10),
                    cov_2=rnorm(10),
+                   cov_3=as.factor(rbinom(10, size=1, prob=0.5)),
                    s_1=rbinom(10, size=1, prob=0.5),
                    s_2=rbinom(10, size=1, prob=0.5))
   df$treatment <- as.factor(df$treatment)
@@ -11,7 +12,7 @@ test_that("Data", {
   data <- .make.data(df, "RoboDataLinear",
                       treat_col="treatment",
                       response_col="response",
-                      covariate_cols=c("cov_1", "cov_2"),
+                      covariate_cols=c("cov_1", "cov_2", "cov_3"),
                       strata_cols=c("s_1", "s_2"))
   expect_equal(class(data), "RoboDataLinear")
   

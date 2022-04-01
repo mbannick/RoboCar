@@ -98,7 +98,7 @@ validate.RoboDataTTE <- function(data){
     att_name <- gsub("_cols", "", att_name)
     att_name <- gsub("_col", "", att_name)
     
-    data[[att_name]] <- as.matrix(df[att])
+    data[[att_name]] <- df[att]
   }
   class(data) <- classname
   
@@ -106,14 +106,40 @@ validate.RoboDataTTE <- function(data){
 }
 
 .make.data <- function(df, classname, ...){
+
   # Convert data frame to object
   data <- .df.toclass(df, classname, ...)
   
   if(!is.null(data$treat)){
-    data$treat <- as.factor(as.vector(data$treat))
+    data$treat <- as.factor(as.vector(data$treat[[1]]))
   }
   if(!is.null(data$response)){
-    data$response <- as.vector(data$response)
+    data$response <- as.vector(data$response[[1]])
+  }
+  if(!is.null(data$covariate)){
+    # Make each factor column into dummy variables
+    for(col in colnames(data$covariate)){
+      if(is.factor(data$covariate[[col]])){
+        dummies <- dummy_cols(data$covariate[col],
+                              remove_first_dummy=T,
+                              remove_selected_columns=T)
+        for(c in colnames(dummies)){
+          dummies[c] <- as.factor(dummies[[c]])
+        }
+        data$covariate[col] <- NULL
+        data$covariate <- cbind(data$covariate, dummies)
+      }
+    }
+  }
+  if(!is.null(data$strata)){
+    # Make each strata variable into dummy variables
+    for(col in colnames(data$strata)){
+      dummies <- dummy_cols(data$strata[col], 
+                            remove_first_dummy=T, 
+                            remove_selected_columns=T)
+      data$strata[col] <- NULL
+      data$strata <- cbind(data$strata, dummies)
+    }
   }
   
   # Add additional data attributes
