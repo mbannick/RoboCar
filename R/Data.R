@@ -1,6 +1,16 @@
 # Functions for validating data and creating data classes
 # to be used across all analysis methods.
 
+#' Extracts column names of variables to adjust for
+#' using the formula notation that is specified by the user.
+.get.varnames.from.formula <- function(formula, df, treat_col){
+  if(!is.null(formula)){
+    var_names <- colnames(model.matrix(as.formula(formula), data=df))
+    var_names <- var_names[!var_names %in% c("(Intercept)", treat_col)]
+  }
+  return(var_names)
+}
+
 .check.response <- function(data){
   if(class(data$response) != "numeric"){
     return("Response column must be numeric.")
@@ -100,7 +110,7 @@ validate.RoboDataTTE <- function(data){
     
     data[[att_name]] <- df[att]
   }
-  class(data) <- classname
+  class(data) <- c("Data", classname)
   
   return(data)
 }
@@ -115,21 +125,6 @@ validate.RoboDataTTE <- function(data){
   }
   if(!is.null(data$response)){
     data$response <- as.vector(data$response[[1]])
-  }
-  if(!is.null(data$covariate)){
-    # Make each factor column into dummy variables
-    for(col in colnames(data$covariate)){
-      if(is.factor(data$covariate[[col]])){
-        dummies <- dummy_cols(data$covariate[col],
-                              remove_first_dummy=T,
-                              remove_selected_columns=T)
-        for(c in colnames(dummies)){
-          dummies[c] <- as.factor(dummies[[c]])
-        }
-        data$covariate[col] <- NULL
-        data$covariate <- cbind(data$covariate, dummies)
-      }
-    }
   }
   if(!is.null(data$strata)){
     # Make each strata variable into dummy variables

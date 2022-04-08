@@ -14,7 +14,13 @@
   .check.options(car_scheme, OPTIONS)
 }
 
-.check.adj_method <- function(adj_method){
+.check.adj_method.glm <- function(adj_method){
+  OPTIONS <- c("heterogeneous",
+               "homogeneous")
+  .check.options(adj_method, OPTIONS)
+}
+
+.check.adj_method.linear <- function(adj_method){
   OPTIONS <- c("ANOVA",
                "ANCOVA",
                "ANHECOVA")

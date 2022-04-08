@@ -21,7 +21,7 @@ robincar_linear <- function(df,
                             conf_level=0.95, contrast=NULL){
   
   .check.car_scheme(car_scheme)
-  .check.adj_method(adj_method)
+  .check.adj_method.linear(adj_method)
   .check.vcovHC(vcovHC)
   
   # Create data object and validate
@@ -44,7 +44,7 @@ robincar_linear <- function(df,
   )
 
   # Perform linear adjustment
-  result <- linadjust(model, data)
+  result <- adjust(model, data)
   
   # Create transformation object
   if(!is.null(contrast)){
