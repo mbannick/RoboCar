@@ -116,7 +116,7 @@ validate.RoboDataTTE <- function(data){
 }
 
 .make.data <- function(df, classname, ...){
-
+  
   # Convert data frame to object
   data <- .df.toclass(df, classname, ...)
   
@@ -127,13 +127,18 @@ validate.RoboDataTTE <- function(data){
     data$response <- as.vector(data$response[[1]])
   }
   if(!is.null(data$strata)){
-    # Make each strata variable into dummy variables
+    # Create joint strata levels
+    data$joint_strata <- joint.strata(data$strata)
+    
+    # Make sure all strata are factors
     for(col in colnames(data$strata)){
-      dummies <- dummy_cols(data$strata[col], 
-                            remove_first_dummy=T, 
-                            remove_selected_columns=T)
-      data$strata[col] <- NULL
-      data$strata <- cbind(data$strata, dummies)
+      data$strata[col] <- as.factor(data$strata[[col]])
+    }
+  }
+  if(!is.null(data$covariate)){
+    # Center x variables
+    for(col in colnames(data$covariate)){
+      data$covariate[col] <- data$covariate[col] - mean(data$covariate[[col]])
     }
   }
   

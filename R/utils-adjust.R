@@ -26,11 +26,9 @@
   } else if(adj_vars == "z"){
     dmat <- data$strata
   } else if(adj_vars == "joint_z"){
-    dmat <- data$strata
-    # TODO: Add logic for joint levels
+    dmat <- data$joint_strata
   } else if(adj_vars == "joint_z_x"){
-    factors <- .get.factor.xs(data)
-    # TODO: Add logic for joint levels
+    dmat <- cbind(data$covariate, data$joint_strata)
   } else {
     stop(paste("Unrecognized adjustment variable type ", adj_vars))
   }

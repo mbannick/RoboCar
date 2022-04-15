@@ -7,7 +7,7 @@
 #' @param model Object of class LinModel
 #' @param data Object of class RoboDataLinear
 #' @export
-linmod <- function(model, data){
+linmod <- function(model, data, family){
   UseMethod("linmod", model)
 }
 
@@ -15,12 +15,12 @@ linmod <- function(model, data){
 #' 
 #' @inheritParams linmod
 #' @exportS3Method RoboCar::linmod
-linmod.ANOVA <- function(model, data){
+linmod.ANOVA <- function(model, data, family=gaussian){
   df <- data.frame(
     treat=data$treat,
     response=data$response
   )
-  mod <- lm(response ~ 0 + treat, data=df)
+  mod <- glm(response ~ 0 + treat, data=df, family=family)
   return(mod)
 }
 
@@ -28,14 +28,14 @@ linmod.ANOVA <- function(model, data){
 #' 
 #' @inheritParams linmod
 #' @exportS3Method RoboCar::linmod
-linmod.ANCOVA <- function(model, data){
+linmod.ANCOVA <- function(model, data, family=gaussian){
   df <- data.frame(
     treat=data$treat,
     response=data$response
   )
   dmat <- .get.dmat(data, model$adj_vars)
   df <- cbind(df, dmat)
-  mod <- lm(response ~ 0 + treat + ., data=df)
+  mod <- glm(response ~ 0 + treat + ., data=df, family=family)
   return(mod)
 }
 
@@ -43,52 +43,44 @@ linmod.ANCOVA <- function(model, data){
 #' 
 #' @inheritParams linmod
 #' @exportS3Method RoboCar::linmod
-linmod.ANHECOVA <- function(model, data){
+linmod.ANHECOVA <- function(model, data, family=gaussian){
   df <- data.frame(
     treat=data$treat,
     response=data$response
   )
   dmat <- .get.dmat(data, model$adj_vars)
   df <- cbind(df, dmat)
-  mod <- lm(response ~ 0 + treat + treat:., data=df)
+  mod <- glm(response ~ 0 + treat + treat:., data=df, family=family)
   return(mod)
 }
 
-#' Perform linear model adjustment using the ANOVA adjustment method
+#' Perform adjustment for linear models, including ANOVA, ANCOVA,
+#' and ANHECOVA, with or without covariate-adaptive randomization.
 #' 
-#' @inheritParams adjust
-#' @param model Object of class ANOVA
-#' @exportS3Method RoboCar::adjust
-adjust.ANOVA <- function(model, data){
-  
-  vcov.wgt <- .get.vcovHC(vcovHC=model$vcovHC, n=data$n, p=data$k)
-  mod <- linmod(model, data)
-  
-  return(list())
-}
+#' @param model A LinModel object and of class ANOVA, ANCOVA, or ANHECOVA
+#' @param data A RobinDataLinear object
+adjust.LinModel <- function(model, data){
 
-#' Perform linear model adjustment using the ANCOVA adjustment method
-#'
-#' @inheritParams linadjust
-#' @param model Object of class ANCOVA
-#' @exportS3Method RoboCar::linadjust
-adjust.ANCOVA <- function(model, data){
-  
-  vcov.wgt <- .get.vcovHC(vcovHC=model$vcovHC, n=data$n, p=data$k)
+  # Fit a model with the settings in model
   mod <- linmod(model, data)
   
-  return(list())
-}
-
-#' Perform linear model adjustment using the ANHECOVA adjustment method
-#' 
-#' @inheritParams adjust
-#' @param model Object of class ANHECOVA
-#' @exportS3Method RoboCar::linadjust
-adjust.ANHECOVA <- function(model, data){
+  # Get the simple randomization variance and adjust if necessary
+  asympt.variance <- vcov_sr(model, data, mod)
+  variance <- asympt.variance / data$n
+  # TODO: Adjust variance for Z, if required
   
-  vcov.wgt <- .get.vcovHC(vcovHC=model$vcovHC, n=data$n, p=data$k)
-  mod <- linmod(model, data)
+  # Extract estimates and create results data
+  est <- coef(mod)[1:data$k]
+  result <- tibble(
+    treat=data$treat_levels,
+    estimate=c(est),
+    se=diag(variance**0.5)
+  )
   
-  return(list())
+  # Compute p-values based on the correct variance estimates
+  result <- result %>% mutate(
+    `pval (2-sided)`=2*pnorm(abs(estimate/se), lower.tail=F)
+  )
+  
+  return(list(result=result, varcov=variance, settings=model))
 }

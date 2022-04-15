@@ -3,7 +3,7 @@
 #' @inheritParams adjust
 #' @param model Object of class ANCOVA_GLM
 #' @exportS3Method RoboCar::adjust
-adjust.ANCOVA_GLM <- function(model, data){
+adjust.ANCOVA_AIPW <- function(model, data){
   
   # TODO: Integrate this with the ANCOVA
   # code so that it's only one function,
@@ -17,7 +17,7 @@ adjust.ANCOVA_GLM <- function(model, data){
 #' @inheritParams adjust
 #' @param model Object of class ANCOVA_AIPW
 #' @exportS3Method RoboCar::adjust
-adjust.ANCOVA_AIPW <- function(model, data){
+adjust.ANHECOVA_AIPW <- function(model, data){
   
   return(list())
 }

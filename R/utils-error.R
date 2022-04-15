@@ -4,7 +4,7 @@
 
 .x.exist.warn <- function() warning("Covariates specified, but no adjustment desired. Ignoring them.")
 .z.exist.warn <- function() warning("Strata specified, but no adjustment desired. Ignoring them.")
-.z.exist.warn.sr <- function() warning("Strata specified, but simple randomization chosen. Ignoring Z in adjustment.")
+.z.exist.warn.simple <- function() warning("Strata specified, but simple randomization chosen. Ignoring Z in adjustment.")
 
 .x.miss.warn <- function() warning("Covariates not specified, but adjustment desired. Changing method to ANOVA.")
 .z.miss.err <- function() stop("No strata specified, but covariate-adaptive randomization desired. Please provide strata.")

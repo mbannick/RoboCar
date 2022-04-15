@@ -14,6 +14,35 @@
 #' @param contrast An optional function to specify a desired contrast
 #' 
 #' @export
+#' @examples
+#' data<-RobinCar:::data_sim
+#' data$A<-as.factor(data$A)
+#' fit.anova<-robincar_linear(df = data, 
+#'                            response_col="y",
+#'                            treat_col="A",
+#'                            strata_cols=c("z1", "z2"),
+#'                            covariate_cols=c("x1", "x3"),
+#'                            car_scheme="simple",
+#'                            adj_method="ANOVA",
+#'                            vcovHC="HC0")
+#' fit.ancova<-robincar_linear(df = data, 
+#'                            response_col="y",
+#'                            treat_col="A",
+#'                            strata_cols=c("z1", "z2"),
+#'                            covariate_cols=c("x1", "x3"),
+#'                            car_scheme="simple",
+#'                            adj_method="ANCOVA",
+#'                            vcovHC="HC0")
+#' fit.anhecova<-robincar_linear(df = data, 
+#'                            response_col="y",
+#'                            treat_col="A",
+#'                            strata_cols=c("z1", "z2"),
+#'                            covariate_cols=c("x1", "x3"),
+#'                            car_scheme="simple",
+#'                            adj_method="ANHECOVA",
+#'                            vcovHC="HC0")
+#' 
+#' 
 robincar_linear <- function(df,
                             treat_col, response_col, strata_cols, covariate_cols,
                             car_scheme="simple", adj_method="ANOVA", vcovHC="HC0",
@@ -26,7 +55,7 @@ robincar_linear <- function(df,
   
   # Create data object and validate
   data <- .make.data(
-    data=df, classname="RoboDataLinear",
+    df=df, classname="RoboDataLinear",
     treat_col=treat_col,
     response_col=response_col,
     strata_cols=strata_cols,
@@ -48,7 +77,8 @@ robincar_linear <- function(df,
   
   # Create transformation object
   if(!is.null(contrast)){
-    
+    # TODO: Transformation contrasts
   }
   
+  return(result)
 }

@@ -11,7 +11,7 @@ APPLICABLE.SCHEMES <- c("permuted-block",
   adj_se_z <- FALSE
   adj_vars <- NULL
   
-  if(car_scheme == "SR"){
+  if(car_scheme == "simple"){
     if(x_exists) .x.exist.warn()
     if(z_exists) .z.exist.warn()
   }
@@ -34,13 +34,13 @@ APPLICABLE.SCHEMES <- c("permuted-block",
 }
 
 .ancova.logic <- function(x_exists, z_exists, car_scheme, cov_strata){
-  
+
   method <- "ANCOVA"
   adj_se_z <- FALSE
   adj_vars <- NULL
   
-  if(car_scheme == "SR"){
-    if(z_exists) .z.exist.warn.sr()
+  if(car_scheme == "simple"){
+    if(z_exists) .z.exist.warn.simple()
     if(x_exists){
       adj_vars <- "x"
     } else {
@@ -84,8 +84,8 @@ APPLICABLE.SCHEMES <- c("permuted-block",
   adj_se_z <- FALSE
   adj_vars <- NULL
   
-  if(car_scheme == "SR"){
-    if(z_exists) .z.exist.warn.sr()
+  if(car_scheme == "simple"){
+    if(z_exists) .z.exist.warn.simple()
     if(x_exists){
       adj_vars <- "x"
     } else {

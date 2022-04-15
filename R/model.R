@@ -2,8 +2,8 @@
 #'
 #' @param data Object of class Data
 #' @export
-make.model <- function(data, ...){
-  UseMethod("make.model", data)
+.make.model <- function(data, ...){
+  UseMethod(".make.model", data)
 }
 
 #' Makes a model class for the specified linear adjustment method
@@ -85,7 +85,7 @@ make.model <- function(data, ...){
       adj_se_z=logic$adj_se_z,
       adj_vars=logic$adj_vars
     ),
-    class=c("LinModel", logic$method)
+    class=c("GLMModel", logic$type, logic$method)
   )
   
   return(model)
