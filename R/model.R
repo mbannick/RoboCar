@@ -31,14 +31,15 @@
   z_exists <- !is.null(data$strata)
   
   # Get logic for adjustment methods
-  logic <- .get.logic(adj_method=adj_method, car_scheme=car_scheme,
-                      x_exists=x_exists, z_exists=z_exists,
-                      cov_strata=cov_strata)
+  logic <- lmlogic(meth=structure(list(), class=adj_method),
+                   car_scheme=car_scheme,
+                   x_exists=x_exists, z_exists=z_exists,
+                   cov_strata=cov_strata)
   
   model <- structure(
     list(
       vcovHC=vcovHC,
-      adj_se_z=logic$adj_se_z,
+      omegaz_func=logic$omegaz_func,
       adj_vars=logic$adj_vars
     ),
     class=c("LinModel", logic$method)
@@ -61,23 +62,13 @@
                                     covariate_to_include_strata,
                                     g_family, g_accuracy) {
   
-  if(is.null(covariate_to_include_strata)){
-    if(adj_method == "ANHECOVA"){
-      cov_strata <- TRUE
-    } else {
-      cov_strata <- FALSE
-    }
-  } else {
-    cov_strata <- covariate_to_include_strata
-  }
-  
   x_exists <- !is.null(data$covariate)
   z_exists <- !is.null(data$strata)
   
   # Get logic for adjustment methods
-  logic <- .get.logic(adj_method=adj_method, car_scheme=car_scheme,
-                      x_exists=x_exists, z_exists=z_exists,
-                      cov_strata=cov_strata)
+  logic <- logic.GLM(adj_method=adj_method, car_scheme=car_scheme,
+                     x_exists=x_exists, z_exists=z_exists,
+                     cov_strata=cov_strata)
   
   model <- structure(
     list(

@@ -32,4 +32,6 @@
   } else {
     stop(paste("Unrecognized adjustment variable type ", adj_vars))
   }
+  modmat <- model.matrix(~ 0 + ., data=data.frame(dmat))
+  return(modmat)
 }

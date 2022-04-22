@@ -65,9 +65,8 @@ adjust.LinModel <- function(model, data){
   mod <- linmod(model, data)
   
   # Get the simple randomization variance and adjust if necessary
-  asympt.variance <- vcov_sr(model, data, mod)
+  asympt.variance <- vcov_car(model, data, mod)
   variance <- asympt.variance / data$n
-  # TODO: Adjust variance for Z, if required
   
   # Extract estimates and create results data
   est <- coef(mod)[1:data$k]

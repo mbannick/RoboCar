@@ -41,8 +41,33 @@
 #'                            car_scheme="simple",
 #'                            adj_method="ANHECOVA",
 #'                            vcovHC="HC0")
-#' 
-#' 
+#'                            
+#' n <- 1000
+#' df <- data.frame(A=rbinom(n, size=1, prob=0.5),
+#'                  y=rnorm(n),
+#'                  x1=rnorm(n),
+#'                  x2=rnorm(n),
+#'                  x3=as.factor(rbinom(n, size=1, prob=0.5)),
+#'                  z1=rbinom(n, size=1, prob=0.5),
+#'                  z2=rbinom(n, size=1, prob=0.5))
+#' df$A <- as.factor(df$A)
+#'
+#' fit.ancova<-robincar_linear(df = df, 
+#'                            response_col="y",
+#'                            treat_col="A",
+#'                            strata_cols=c("z1", "z2"),
+#'                            covariate_cols=c("x1", "x2"),
+#'                            car_scheme="biased-coin",
+#'                            adj_method="ANCOVA",
+#'                            vcovHC="HC0")
+#' fit.anhecova<-robincar_linear(df = df, 
+#'                            response_col="y",
+#'                            treat_col="A",
+#'                            strata_cols=c("z1", "z2"),
+#'                            covariate_cols=c("x1"),
+#'                            car_scheme="biased-coin",
+#'                            adj_method="ANHECOVA",
+#'                            vcovHC="HC0")
 robincar_linear <- function(df,
                             treat_col, response_col, strata_cols, covariate_cols,
                             car_scheme="simple", adj_method="ANOVA", vcovHC="HC0",

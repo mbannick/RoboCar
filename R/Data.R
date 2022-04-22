@@ -116,7 +116,7 @@ validate.RoboDataTTE <- function(data){
 }
 
 .make.data <- function(df, classname, ...){
-  
+  browser()
   # Convert data frame to object
   data <- .df.toclass(df, classname, ...)
   

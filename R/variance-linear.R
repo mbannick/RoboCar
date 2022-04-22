@@ -29,10 +29,11 @@
 
 #' Gets the Script B matrix for AN(HE)COVA models
 #' in the asymptotic variance formula.
-.vcov_sr.ScriptB <- function(data, mod){
+.vcov_sr.ScriptB <- function(data, model){
   # Create an ANHECOVA model to get coefficients for the variance
-  # calculation, that only adjusts for covariates X.
-  anhecova <- structure(list(adj_vars="x"),
+  # calculation, that adjusts for whatever the adjustment variables were.
+  browser()
+  anhecova <- structure(list(adj_vars=model$adj_vars),
                         class=c("LinModel", "ANHECOVA")
   )
   mod.anhecova <- linmod(anhecova, data)
@@ -58,10 +59,10 @@ vcov_sr.ANOVA <- function(model, data, mod){
 #' Gets ANCOVA asymptotic variance under simple randomization
 vcov_sr.ANCOVA <- function(model, data, mod){
   diagmat <- .vcov_sr.diag(data, mod)
-  covX <- cov(data$covariate)
+  covX <- cov(.get.dmat(data, model$adj_vars))
   
   B <- .vcov_sr.B(data, mod)
-  ScriptB <- .vcov_sr.ScriptB(data, mod)
+  ScriptB <- .vcov_sr.ScriptB(data, model)
   
   varcov <- diagmat + 
     t(ScriptB) %*% covX %*% B + 
@@ -73,13 +74,62 @@ vcov_sr.ANCOVA <- function(model, data, mod){
 
 #' Gets ANHECOVA asymptotic variance under simple randomization
 vcov_sr.ANHECOVA <- function(model, data, mod){
+  browser()
   diagmat <- .vcov_sr.diag(data, mod)
-  covX <- cov(data$covariate)
+  covX <- cov(.get.dmat(data, model$adj_vars))
   
-  ScriptB <- .vcov_sr.ScriptB(data, mod)
+  ScriptB <- .vcov_sr.ScriptB(data, model)
   
   varcov <- diagmat +
     t(ScriptB) %*% covX %*% ScriptB
   
   return(varcov)
 }
+
+estimate.rb <- function(model, pie, mod){
+  rb <- diag(1/pie)
+  
+  # TODO: Estimate RB based on the model
+  return(rb)
+}
+
+vcov_car <- function(model, data, mod){
+  
+  # Get the variance under simple randomization
+  sr <- vcov_sr(model, data, mod)
+  
+  # Adjust this variance for Z, if necessary
+  if(!is.null(model$omegaz_func)){
+    
+    # Estimate R(B)
+    # Fit an ANHECOVA model
+    anhecova <- structure(list(adj_vars="joint_z_x"),
+                          class=c("LinModel", "ANHECOVA")
+    )
+    mod.anhecova <- linmod(anhecova, data)
+    browser()
+    means <- coef(mod.anhecova)[c(1:data$k)]
+    
+    preds <- mod$data %>%
+      mutate(preds=predict(mod)) %>%
+      group_by(treat) %>%
+      summarize(mean=mean(preds), .groups="drop")
+    
+    # TODO: SHOULD THIS EXACTLY DROP OUT WHEN ANHECOVA IS USED?
+    expectation <- preds$mean - means
+    rb <- diag(c(expectation / data$pie))
+    
+    # Calculate Omega Z under the covariate adaptive randomization scheme
+    # Right now this will only be zero, but it's here for more generality
+    # if we eventually include the urn design
+    omegaz <- model$omegaz_func(data$pie)
+    
+    # Calculate Omega Z under simple 
+    omegaz_sr <- omegaz.closure("simple")(data$pie)
+    variance <- sr - rb %*% (omegaz_sr - omegaz) %*% rb
+  } else {
+    variance <- sr
+  }
+  return(sr)
+}
+
