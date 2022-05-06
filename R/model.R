@@ -80,7 +80,7 @@
       pu_joint_z=logic$pu_joint_z,
       pu_funcs=logic$u_funcs
     ),
-    class=c("GLMModel", logic$type, logic$method)
+    class=c(logic$method)
   )
   
   return(model)

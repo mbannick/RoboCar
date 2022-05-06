@@ -1,18 +1,30 @@
 
-predictions <- function(model, mod, treat_levels){
+predictions <- function(model, data, mod){
   UseMethod("predictions", model)
 }
 
-predictions.GCOMP <- function(model, mod, treat_levels){
-  browser()
+predictions.GLMModel <- function(model, data, mod){
+  df <- data.frame(
+    treat=data$treat,
+    response=data$response
+  )
+  dmat <- .get.dmat(data, model$adj_vars)
+  df <- cbind(df, dmat)
+  preds <- predict(mod, newdata=df, type="response")
+  return(preds)
+}
+
+predictions.GCOMP <- function(model, data, mod){
+  
   set.treat <- function(a){
-    dat <- mod$data
-    dat$treat <- a
+    dat <- copy(data)
+    dat$treat <- rep(a, data$n)
+    dat$treat <- factor(dat$treat, levels=data$treat_levels)
     return(dat)
   }
-  pred.treat <- function(dat) predict(mod, newdata=dat, type="response")
+  pred.treat <- function(dat) predict.GLMModel(model, dat, mod)
   
-  datas <- lapply(treat_levels, set.treat)
+  datas <- lapply(data$treat_levels, set.treat)
   preds <- lapply(datas, pred.treat)
   
   pred_cols <- do.call(cbind, preds)
@@ -20,8 +32,10 @@ predictions.GCOMP <- function(model, mod, treat_levels){
   return(pred_cols)
 }
 
-predictions.AIPW <- function(model, mod){
-  return()
+predictions.AIPW <- function(model, data, mod){
+  gcomp_preds <- predictions.GCOMP(model, data, mod)
+  browser()
+  return(gcomp_preds)
 }
 
 #' Perform GLM adjustment, based on the classes
@@ -33,9 +47,9 @@ predictions.AIPW <- function(model, mod){
 #' @param model Object of class GLMModel
 #' @exportS3Method RoboCar::adjust
 adjust.GLMModel <- function(model, data){
-  browser()
+  
   glmod <- linmod(model, data, family=model$g_family)
-  preds <- predictions(model, glmod, treat_levels=data$treat_levels)
+  preds <- predictions(model, data, glmod)
   
   return(list())
 }

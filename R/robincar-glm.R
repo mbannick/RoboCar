@@ -75,7 +75,6 @@ robincar_glm <- function(df,
   )
   
   # Perform adjustment
-  browser()
   result <- adjust(model, data)
   
   # Create transformation object

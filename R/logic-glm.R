@@ -85,9 +85,9 @@ glmlogic <- function(adj_method, x_exists, z_exists, car_scheme, cov_strata){
   }
   
   if(aipw){
-    method=c("AIPW", "GLMModel", method)
+    method=c("AIPW", "GCOMP", "GLMModel", method)
   } else {
-    method=c("GLMModel", method)
+    method=c("GCOMP", "GLMModel", method)
   }
   return(list(
     method=method,
