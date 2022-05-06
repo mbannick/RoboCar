@@ -63,7 +63,6 @@ adjust.LinModel <- function(model, data){
 
   # Fit a model with the settings in model
   mod <- linmod(model, data)
-  
   # Get the simple randomization variance and adjust if necessary
   asympt.variance <- vcov_car(model, data, mod)
   variance <- asympt.variance / data$n

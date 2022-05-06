@@ -17,6 +17,29 @@
 #' @param formula An optional formula to use for adjustment specified using as.formula("..."). This overrides strata_cols and covariate_cols.
 #' 
 #' @export
+#' @examples 
+#' n <- 1000
+#' set.seed(10)
+#' df <- data.frame(A=rbinom(n, size=1, prob=0.5),
+#'                  y=rbinom(n, size=1, prob=0.2),
+#'                  x1=rnorm(n),
+#'                  x2=rnorm(n),
+#'                  x3=as.factor(rbinom(n, size=1, prob=0.5)),
+#'                  z1=rbinom(n, size=1, prob=0.5),
+#'                  z2=rbinom(n, size=1, prob=0.5))
+#' df$A <- as.factor(df$A)
+#' df$x1 <- df$x1 - mean(df$x1)
+#' glm.homogeneous<-robincar_glm(df = df, 
+#'                               response_col="y",
+#'                               treat_col="A",
+#'                               strata_cols=c("z1", "z2"),
+#'                               covariate_cols=c("x1"),
+#'                               car_scheme="simple",
+#'                               g_family=binomial(link="logit"),
+#'                               g_accuracy=7,
+#'                               covariate_to_include_strata=TRUE,
+#'                               adj_method="homogeneous",
+#'                               vcovHC="HC0")
 robincar_glm <- function(df,
                          treat_col, response_col, strata_cols, covariate_cols,
                          car_scheme="simple", adj_method="heterogeneous", vcovHC="HC0",
@@ -28,25 +51,16 @@ robincar_glm <- function(df,
   .check.adj_method.glm(adj_method)
   .check.vcovHC(vcovHC)
   
-  if(!is.null(formula)){
-    formula_cols <- .get.varnames.from.formula(
+  data <- .make.data(
+    df=df, classname="RoboDataGLM",
+    treat_col=treat_col,
+    response_col=response_col,
+    strata_cols=strata_cols,
+    covariate_cols=covariate_cols,
+    formula_cols=.get.varnames.from.formula(
       formula=formula, df=df, treat_col=treat_col
     )
-    data <- .make.data(
-      data=df, classname="RoboDataGLM",
-      treat_col=treat_col,
-      response_col=response_col,
-      formula_cols=formula_cols
-    )
-  } else {
-    data <- .make.data(
-      data=df, classname="RoboDataGLM",
-      treat_col=treat_col,
-      response_col=response_col,
-      strata_cols=strata_cols,
-      covariate_cols=covariate_cols,
-    )
-  }
+  )
   validate(data)
   
   # Create model object
@@ -61,6 +75,7 @@ robincar_glm <- function(df,
   )
   
   # Perform adjustment
+  browser()
   result <- adjust(model, data)
   
   # Create transformation object

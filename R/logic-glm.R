@@ -5,16 +5,16 @@ APPLICABLE.SCHEMES <- c("permuted-block",
                         "biased-coin",
                         "urn")
 
-logic.GLM <- function(heterogeneous, x_exists, z_exists, car_scheme, cov_strata){
+glmlogic <- function(adj_method, x_exists, z_exists, car_scheme, cov_strata){
   
   # Method to use for the GLM G-Computation adjustment,
   # and whether we should do AIPW on top of it.
-  if(heterogeneous){
+  if(adj_method == "heterogeneous"){
     method <- "ANHECOVA"
   } else {
     method <- "ANCOVA"
   }
-  adj_vars <- ""
+  adj_vars <- NULL
   
   aipw <- TRUE
   adj_se_z <- FALSE
@@ -25,7 +25,7 @@ logic.GLM <- function(heterogeneous, x_exists, z_exists, car_scheme, cov_strata)
   # Biased action will be one of "", "warning", "error"
   pu_funcs <- function(){}
 
-  if(car_scheme == "SR"){
+  if(car_scheme == "simple"){
     if(z_exists) .z.exist.warn()
     if(x_exists){
       adj_vars <- "x"

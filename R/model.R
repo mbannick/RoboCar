@@ -66,15 +66,19 @@
   z_exists <- !is.null(data$strata)
   
   # Get logic for adjustment methods
-  logic <- logic.GLM(adj_method=adj_method, car_scheme=car_scheme,
-                     x_exists=x_exists, z_exists=z_exists,
-                     cov_strata=cov_strata)
-  
+  logic <- glmlogic(adj_method=adj_method, car_scheme=car_scheme,
+                    x_exists=x_exists, z_exists=z_exists,
+                    cov_strata=cov_strata)
+  browser()
   model <- structure(
     list(
       vcovHC=vcovHC,
+      g_family=g_family,
+      g_accuracy=g_accuracy,
       adj_se_z=logic$adj_se_z,
-      adj_vars=logic$adj_vars
+      adj_vars=logic$adj_vars,
+      pu_joint_z=logic$pu_joint_z,
+      pu_funcs=logic$u_funcs
     ),
     class=c("GLMModel", logic$type, logic$method)
   )

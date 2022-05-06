@@ -4,6 +4,7 @@
 #' Extracts column names of variables to adjust for
 #' using the formula notation that is specified by the user.
 .get.varnames.from.formula <- function(formula, df, treat_col){
+  var_names <- c()
   if(!is.null(formula)){
     var_names <- colnames(model.matrix(as.formula(formula), data=df))
     var_names <- var_names[!var_names %in% c("(Intercept)", treat_col)]
@@ -116,7 +117,6 @@ validate.RoboDataTTE <- function(data){
 }
 
 .make.data <- function(df, classname, ...){
-  browser()
   # Convert data frame to object
   data <- .df.toclass(df, classname, ...)
   

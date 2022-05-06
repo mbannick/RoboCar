@@ -33,5 +33,6 @@
     stop(paste("Unrecognized adjustment variable type ", adj_vars))
   }
   modmat <- model.matrix(~ 0 + ., data=data.frame(dmat))
+  modmat <- t(t(modmat) - colMeans(modmat))
   return(modmat)
 }
