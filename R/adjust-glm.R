@@ -14,10 +14,10 @@ predictions.GLMModel <- function(model, data, mod){
   return(preds)
 }
 
-predictions.GCOMP <- function(model, data, mod){
+.get.response.matrix <- function(model, data, mod){
   
   set.treat <- function(a){
-    dat <- copy(data)
+    dat <- data
     dat$treat <- rep(a, data$n)
     dat$treat <- factor(dat$treat, levels=data$treat_levels)
     return(dat)
@@ -32,10 +32,41 @@ predictions.GCOMP <- function(model, data, mod){
   return(pred_cols)
 }
 
-predictions.AIPW <- function(model, data, mod){
-  gcomp_preds <- predictions.GCOMP(model, data, mod)
+group_means <- function(a, response, preds, treat){
+  group_ind <- (treat == a)
+  group_num <- sum(group_ind)
+  group_mean <- mean()
+  
+  response[group_ind] - d
+}
+
+aipw <- function(model, data, mod){
   browser()
-  return(gcomp_preds)
+  # Get predictions from G-Computation model
+  gcomp_preds <- .get.response.matrix(model, data, mod)
+  # TODO: Check prediction unbiasedness in the gcomputation estimator
+  
+  # Construct AIPW estimator
+  theta_aipw <- function(a){
+    t_id <- which(data$treat_levels == a)
+    if(length(t_id) == 0) stop()
+    
+    mu_hat <- gcomp_preds[, t_id]
+    
+    i_a <- (data$treat == a)
+    n_a <- sum(i_a)
+    
+    ybar_a <- sum(data$response[i_a]) / n_a
+    mubar_a <- sum(mu_hat[i_a]) / n_a
+    mu_tilde <- mu_hat - mubar_a + ybar_a
+    
+    residuals <- data$response - mu_tilde
+    theta <- residuals[i_a] / n_a + mean(mu_tilde)
+    return(theta)
+  }
+  est <- sapply(data$treat_levels, theta_aipw)
+    
+  return(est)
 }
 
 #' Perform GLM adjustment, based on the classes
@@ -49,7 +80,8 @@ predictions.AIPW <- function(model, data, mod){
 adjust.GLMModel <- function(model, data){
   
   glmod <- linmod(model, data, family=model$g_family)
-  preds <- predictions(model, data, glmod)
+  estimate <- aipw(model, data, glmod)
+  variance <- vcov_car(model, data, glmod)
   
-  return(list())
+  return(result)
 }
