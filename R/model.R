@@ -69,7 +69,6 @@
   logic <- glmlogic(adj_method=adj_method, car_scheme=car_scheme,
                     x_exists=x_exists, z_exists=z_exists,
                     cov_strata=cov_strata)
-  browser()
   model <- structure(
     list(
       vcovHC=vcovHC,

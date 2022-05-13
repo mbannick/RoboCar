@@ -69,16 +69,7 @@ adjust.LinModel <- function(model, data){
   
   # Extract estimates and create results data
   est <- coef(mod)[1:data$k]
-  result <- tibble(
-    treat=data$treat_levels,
-    estimate=c(est),
-    se=diag(variance**0.5)
-  )
-  
-  # Compute p-values based on the correct variance estimates
-  result <- result %>% mutate(
-    `pval (2-sided)`=2*pnorm(abs(estimate/se), lower.tail=F)
-  )
+  results <- format.results(data, est, variance)
   
   return(list(result=result, varcov=variance, settings=model))
 }
