@@ -54,6 +54,22 @@ linmod.ANHECOVA <- function(model, data, family=gaussian){
   return(mod)
 }
 
+#' Fits a custom GLM model using the user-specified
+#' formula.
+#' 
+#' @inheritParams linmod
+#' @exportS3Method RoboCar::linmod
+linmod.CUSTOM <- function(model, data, family=gaussian){
+  df <- data.frame(
+    treat=data$treat,
+    response=data$response
+  )
+  dmat <- .get.dmat(data, model$adj_vars)
+  df <- cbind(df, dmat)
+  mod <- glm(as.formula(data$formula), data=df, family=family)
+  return(mod)
+}
+
 #' Perform adjustment for linear models, including ANOVA, ANCOVA,
 #' and ANHECOVA, with or without covariate-adaptive randomization.
 #' 

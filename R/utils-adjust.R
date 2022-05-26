@@ -29,6 +29,8 @@
     dmat <- data$joint_strata
   } else if(adj_vars == "joint_z_x"){
     dmat <- cbind(data$covariate, data$joint_strata)
+  } else if(adj_vars == "formula"){
+    dmat <- data$formula_vars
   } else {
     stop(paste("Unrecognized adjustment variable type ", adj_vars))
   }

@@ -52,7 +52,6 @@ predictions.GLMModel <- function(model, data, mod){
     # Check prediction un-biasedness for the original muhat
     # g-computation just for warning/error reporting,
     # only up to level of accuracy specified by the user
-    browser()
     check.pu <- function(u, i) round(mean(u[i] - y[i]), digits=model$g_accuracy)
     
     if(!model$pu_joint_z){

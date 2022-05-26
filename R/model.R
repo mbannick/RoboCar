@@ -65,12 +65,11 @@
   x_exists <- !is.null(data$covariate)
   z_exists <- !is.null(data$strata)
   
-  # TODO: Override the logic if there is a formula
-  
   # Get logic for adjustment methods
   logic <- glmlogic(adj_method=adj_method, car_scheme=car_scheme,
                     x_exists=x_exists, z_exists=z_exists,
-                    cov_strata=covariate_to_include_strata)
+                    cov_strata=covariate_to_include_strata,
+                    formula=data$formula)
   model <- structure(
     list(
       vcovHC=vcovHC,
@@ -79,7 +78,7 @@
       adj_se_z=logic$adj_se_z,
       adj_vars=logic$adj_vars,
       pu_joint_z=logic$pu_joint_z,
-      pu_funcs=logic$u_funcs
+      pu_funcs=logic$pu_funcs
     ),
     class=c(logic$method)
   )
