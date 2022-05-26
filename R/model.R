@@ -65,6 +65,8 @@
   x_exists <- !is.null(data$covariate)
   z_exists <- !is.null(data$strata)
   
+  # TODO: Override the logic if there is a formula
+  
   # Get logic for adjustment methods
   logic <- glmlogic(adj_method=adj_method, car_scheme=car_scheme,
                     x_exists=x_exists, z_exists=z_exists,

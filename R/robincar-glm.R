@@ -51,6 +51,18 @@
 #'                               covariate_to_include_strata=TRUE,
 #'                               adj_method="heterogeneous",
 #'                               vcovHC="HC0")
+#' glm.heterogeneous<-robincar_glm(df = df, 
+#'                               response_col="y",
+#'                               treat_col="A",
+#'                               strata_cols=c("z1", "z2"),
+#'                               covariate_cols=c("x1"),
+#'                               car_scheme="pocock-simon",
+#'                               g_family=poisson,
+#'                               g_accuracy=7,
+#'                               covariate_to_include_strata=TRUE,
+#'                               adj_method="heterogeneous",
+#'                               vcovHC="HC0",
+#'                               formula=formula(y ~ A + x1 + z1))
 robincar_glm <- function(df,
                          treat_col, response_col, strata_cols, covariate_cols,
                          car_scheme="simple", adj_method="heterogeneous", vcovHC="HC0",
@@ -61,16 +73,14 @@ robincar_glm <- function(df,
   .check.car_scheme(car_scheme)
   .check.adj_method.glm(adj_method)
   .check.vcovHC(vcovHC)
-  
+
   data <- .make.data(
     df=df, classname="RoboDataGLM",
     treat_col=treat_col,
     response_col=response_col,
     strata_cols=strata_cols,
     covariate_cols=covariate_cols,
-    formula_cols=.get.varnames.from.formula(
-      formula=formula, df=df, treat_col=treat_col
-    )
+    formula=formula
   )
   validate(data)
   
