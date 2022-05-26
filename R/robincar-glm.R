@@ -40,6 +40,17 @@
 #'                               covariate_to_include_strata=TRUE,
 #'                               adj_method="homogeneous",
 #'                               vcovHC="HC0")
+#' glm.heterogeneous<-robincar_glm(df = df, 
+#'                               response_col="y",
+#'                               treat_col="A",
+#'                               strata_cols=c("z1", "z2"),
+#'                               covariate_cols=c("x1"),
+#'                               car_scheme="pocock-simon",
+#'                               g_family=poisson,
+#'                               g_accuracy=7,
+#'                               covariate_to_include_strata=TRUE,
+#'                               adj_method="heterogeneous",
+#'                               vcovHC="HC0")
 robincar_glm <- function(df,
                          treat_col, response_col, strata_cols, covariate_cols,
                          car_scheme="simple", adj_method="heterogeneous", vcovHC="HC0",

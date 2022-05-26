@@ -36,9 +36,8 @@ glmlogic <- function(adj_method, x_exists, z_exists, car_scheme, cov_strata){
       aipw <- FALSE
     }
   }
-  if(car_scheme == "minimization"){
-    
-    if(heterogeneous){
+  if(car_scheme == "pocock-simon"){
+    if(adj_method == "heterogeneous"){
       if(z_exists){
         if(!cov_strata){
           .z.include.warn()

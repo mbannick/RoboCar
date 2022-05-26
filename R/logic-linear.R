@@ -25,7 +25,7 @@ lmlogic.ANOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
     if(x_exists) .x.exist.warn()
     if(z_exists) .z.exist.warn()
   }
-  if(car_scheme == "minimization"){
+  if(car_scheme == "pocock-simon"){
     .car.min.err()
   }
   if(car_scheme %in% APPLICABLE.SCHEMES){
@@ -52,7 +52,7 @@ lmlogic.ANCOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
       s$method <- "ANOVA"
     }
   }
-  if(car_scheme == "minimization"){
+  if(car_scheme == "pocock-simon"){
     .car.min.err()
   }
   if(car_scheme %in% APPLICABLE.SCHEMES){
@@ -91,7 +91,7 @@ lmlogic.ANHECOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
       s$method <- "ANOVA"
     }
   }
-  if(car_scheme == "minimization"){
+  if(car_scheme == "pocock-simon"){
     if(z_exists){
       if(x_exists){
         s$adj_vars <- "joint_z_x"

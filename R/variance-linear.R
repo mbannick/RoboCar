@@ -175,9 +175,8 @@ vcov_car.LinModel <- function(model, data, mod){
 
 #' Gets AIPW asymptotic variance under simple randomization
 vcov_car.GLMModel <- function(model, data, mod){
-  
   # Get prediction matrix for AIPW
-  mutilde <- .get.mutilde(model, data, mod)
+  mutilde <- .get.mutilde(model, data, mod, check_pu=FALSE)
   
   # Get predictions for observed treatment group
   preds <- matrix(nrow=data$n, ncol=1)
