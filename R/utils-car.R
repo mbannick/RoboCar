@@ -1,4 +1,4 @@
-#' Compute the \Omega(Z) matrix
+#' Compute the Omega(Z) matrix
 #' based on the given covariate adaptive randomization scheme.
 #' 
 #' This function returns a function to obtain the correct matrix

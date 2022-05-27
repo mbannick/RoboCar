@@ -149,7 +149,7 @@ get.erb <- function(model, data, mod, mu_hat=NULL){
   # Get the R(B) matrix for all strata levels
   rb_z <- lapply(strata_levels, .get.rb)
   
-  # Compute the R(B)[\Omega_{SR} - \Omega_{Z_i}]R(B) | Z_i
+  # Compute the R(B)[Omega_{SR} - Omega_{Z_i}]R(B) | Z_i
   # for each Z_i
   rb_omega_rb_z <- lapply(rb_z, function(x) x %*% (omegaz_sr - omegaz) %*% x)
   

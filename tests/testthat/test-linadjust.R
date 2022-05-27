@@ -15,17 +15,17 @@ test_that("Linear adjustment", {
                      strata_cols=c("s_1", "s_2"))
   expect_equal(class(data), "RoboDataLinear")
   
-  model <- .make.model(
+  model <- RoboCar::.make.model(
     adj_method="ANCOVA",
     car_scheme="simple",
     vcovHC="HC0"
   )
-  .check.compatible_model(model, data)
+  RoboCar::.check.compatible_model(model, data)
   
   # Perform linear adjustment HELPER function
-  result <- linmod(model, data)
+  result <- RoboCar::linmod(model, data)
   
   # TODO: This will be where the model results are; empty for now.
-  result <- linadjust(model, data)
+  result <- RoboCar::linadjust(model, data)
 })
 

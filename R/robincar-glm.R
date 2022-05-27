@@ -16,6 +16,7 @@
 #' @param g_accuracy Level of accuracy to check prediction un-biasedness.
 #' @param formula An optional formula to use for adjustment specified using as.formula("..."). This overrides strata_cols and covariate_cols.
 #' 
+#' @import dplyr
 #' @export
 #' @examples 
 #' n <- 1000
@@ -62,13 +63,15 @@
 #'                               covariate_to_include_strata=TRUE,
 #'                               adj_method="heterogeneous",
 #'                               vcovHC="HC0",
-#'                               formula=formula(y ~ A + x1 + z1))
+#'                               formula=formula(y ~ A + x1 + z1),
+#'                               contrast_h="diff")
 robincar_glm <- function(df,
-                         treat_col, response_col, strata_cols, covariate_cols,
+                         treat_col, response_col, strata_cols=NULL, covariate_cols=NULL,
                          car_scheme="simple", adj_method="heterogeneous", vcovHC="HC0",
                          covariate_to_include_strata=NULL,
                          g_family=gaussian, g_accuracy=7, formula=NULL,
-                         conf_level=0.95, contrast=NULL){
+                         conf_level=0.95,
+                         contrast_h=NULL, contrast_dh=NULL){
   
   .check.car_scheme(car_scheme)
   .check.adj_method.glm(adj_method)
@@ -99,8 +102,13 @@ robincar_glm <- function(df,
   result <- adjust(model, data)
   
   # Create transformation object
-  if(!is.null(contrast)){
-    
+  if(!is.null(contrast_h)){
+    c_result <- robincar_contrast(
+      result=result,
+      contrast_h=contrast_h,
+      contrast_dh=contrast_dh
+    )
+    result <- list(main=result, contrast=c_result)
   }
   
   return(result)

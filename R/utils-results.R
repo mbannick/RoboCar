@@ -1,10 +1,16 @@
-format.results <- function(data, estimates, varcov){
+
+#' Function to format results.
+#' 
+#' @export
+format.results <- function(labels, estimates, varcov, label_name="treat"){
+
   # Extract estimates and create results data
   result <- tibble(
-    treat=data$treat_levels,
+    label=labels,
     estimate=c(estimates),
     se=diag(varcov**0.5)
   )
+  colnames(result) <- c(label_name, "estimate", "se")
   
   # Compute p-values based on the correct variance estimates
   result <- result %>% mutate(

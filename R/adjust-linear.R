@@ -6,7 +6,6 @@
 #' 
 #' @param model Object of class LinModel
 #' @param data Object of class RoboDataLinear
-#' @export
 linmod <- function(model, data, family){
   UseMethod("linmod", model)
 }
@@ -14,7 +13,6 @@ linmod <- function(model, data, family){
 #' Fits a linear model to use in ANOVA
 #' 
 #' @inheritParams linmod
-#' @exportS3Method RoboCar::linmod
 linmod.ANOVA <- function(model, data, family=gaussian){
   df <- data.frame(
     treat=data$treat,
@@ -27,7 +25,6 @@ linmod.ANOVA <- function(model, data, family=gaussian){
 #' Fits a linear model to use in ANCOVA
 #' 
 #' @inheritParams linmod
-#' @exportS3Method RoboCar::linmod
 linmod.ANCOVA <- function(model, data, family=gaussian){
   df <- data.frame(
     treat=data$treat,
@@ -42,7 +39,6 @@ linmod.ANCOVA <- function(model, data, family=gaussian){
 #' Fits a linear model to use in ANHECOVA
 #' 
 #' @inheritParams linmod
-#' @exportS3Method RoboCar::linmod
 linmod.ANHECOVA <- function(model, data, family=gaussian){
   df <- data.frame(
     treat=data$treat,
@@ -58,7 +54,6 @@ linmod.ANHECOVA <- function(model, data, family=gaussian){
 #' formula.
 #' 
 #' @inheritParams linmod
-#' @exportS3Method RoboCar::linmod
 linmod.CUSTOM <- function(model, data, family=gaussian){
   df <- data.frame(
     treat=data$treat,
@@ -79,13 +74,14 @@ adjust.LinModel <- function(model, data){
 
   # Fit a model with the settings in model
   mod <- linmod(model, data)
+  
   # Get the simple randomization variance and adjust if necessary
   asympt.variance <- vcov_car(model, data, mod)
   variance <- asympt.variance / data$n
   
   # Extract estimates and create results data
   est <- coef(mod)[1:data$k]
-  results <- format.results(data, est, variance)
+  result <- format.results(data$treat_levels, est, variance)
   
   return(list(result=result, varcov=variance, settings=model))
 }

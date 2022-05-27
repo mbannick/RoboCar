@@ -112,11 +112,16 @@ aipw <- function(model, data, mod){
 #' @param model Object of class GLMModel
 #' @exportS3Method RoboCar::adjust
 adjust.GLMModel <- function(model, data){
+  
+  # Get the generalized linear model and estimates by AIPW
   glmod <- linmod(model, data, family=model$g_family)
   estimate <- aipw(model, data, glmod)
-  variance <- vcov_car(model, data, glmod)
   
-  result <- format.results(data, estimate, variance)
+  # Compute the asymptotic variance
+  asympt.variance <- vcov_car(model, data, glmod)
+  variance <- asympt.variance / data$n
+  
+  result <- format.results(data$treat_levels, estimate, variance)
   
   return(list(result=result, varcov=variance, settings=model))
 }

@@ -13,6 +13,7 @@
 #' @param conf_level Level for confidence intervals
 #' @param contrast An optional function to specify a desired contrast
 #' 
+#' @import dplyr
 #' @export
 #' @examples
 #' data<-RobinCar:::data_sim
@@ -42,6 +43,25 @@
 #'                            adj_method="ANHECOVA",
 #'                            vcovHC="HC0")
 #'                            
+#' fit.anova<-robincar_linear(df = data, 
+#'                            response_col="y",
+#'                            treat_col="A",
+#'                            strata_cols=c("z1", "z2"),
+#'                            covariate_cols=c("x1", "x3"),
+#'                            car_scheme="simple",
+#'                            adj_method="ANOVA",
+#'                            vcovHC="HC0",
+#'                            contrast_h="diff")
+#' odds.ratio<-function(theta){
+#'   theta0<-theta[1]
+#'   theta1<-theta[2]
+#'   theta2<-theta[3]
+#'   OR01<-theta1/(1-theta1)/(theta0/(1-theta0))
+#'   OR02<-theta2/(1-theta2)/(theta0/(1-theta0))
+#'   return(c(OR01,OR02))
+#'}
+#' robincar_contrast(fit.anova$main, contrast_h=odds.ratio)
+#'                            
 #' n <- 1000
 #' df <- data.frame(A=rbinom(n, size=1, prob=0.5),
 #'                  y=rnorm(n),
@@ -69,10 +89,11 @@
 #'                            adj_method="ANHECOVA",
 #'                            vcovHC="HC0")
 robincar_linear <- function(df,
-                            treat_col, response_col, strata_cols, covariate_cols,
+                            treat_col, response_col, strata_cols=NULL, covariate_cols=NULL,
                             car_scheme="simple", adj_method="ANOVA", vcovHC="HC0",
                             covariate_to_include_strata=NULL,
-                            conf_level=0.95, contrast=NULL){
+                            conf_level=0.95, 
+                            contrast_h=NULL, contrast_dh=NULL){
   
   .check.car_scheme(car_scheme)
   .check.adj_method.linear(adj_method)
@@ -101,8 +122,13 @@ robincar_linear <- function(df,
   result <- adjust(model, data)
   
   # Create transformation object
-  if(!is.null(contrast)){
-    # TODO: Transformation contrasts
+  if(!is.null(contrast_h)){
+    c_result <- robincar_contrast(
+      result=result,
+      contrast_h=contrast_h,
+      contrast_dh=contrast_dh
+    )
+    result <- list(main=result, contrast=c_result)
   }
   
   return(result)

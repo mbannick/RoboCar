@@ -56,8 +56,8 @@
 #' @param car_scheme Type of covariate adaptive randomization
 #' @param vcovHC Type of heteroskedasticity-consistent SE's
 #' @param covariate_to_include_strata Include strata as covariates
-#' @param g_family
-#' @param g_accuracy
+#' @param g_family Family for GLM model
+#' @param g_accuracy Accuracy tolerance for prediction unbiasedness
 .make.model.RoboDataGLM <- function(data, adj_method, car_scheme, vcovHC,
                                     covariate_to_include_strata,
                                     g_family, g_accuracy) {

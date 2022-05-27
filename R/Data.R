@@ -1,17 +1,6 @@
 # Functions for validating data and creating data classes
 # to be used across all analysis methods.
 
-#' Extracts column names of variables to adjust for
-#' using the formula notation that is specified by the user.
-.get.varnames.from.formula <- function(formula, df, treat_col){
-  var_names <- c()
-  if(!is.null(formula)){
-    var_names <- colnames(model.matrix(as.formula(formula), data=df))
-    var_names <- var_names[!var_names %in% c("(Intercept)", treat_col)]
-  }
-  return(var_names)
-}
-
 .check.response <- function(data){
   if(class(data$response) != "numeric"){
     return("Response column must be numeric.")
@@ -88,6 +77,48 @@ validate.RoboDataTTE <- function(data){
   .return.error(errors)
 }
 
+#' Edits user-specified formula
+#' 
+#' # TODO: This needs tests!
+#' @param form Formula specified by user, either character or as formula
+#' @param response_col Name of response column
+#' @param treat_col Name of treatment column
+.edit.formula <- function(form, response_col, treat_col){
+  
+  # Convert formula to character
+  form <- deparse(as.formula(form))
+  
+  # Check for intercept specifications, we don't want this
+  # because we will do this manually.
+  # This might not capture all specs that users could input --
+  # come back to this later to make more robust checks.
+  if(grepl("(~0\\+|~1\\+)",gsub(" ", "", form))) stop(
+    "Do not put a 1 in formula for intercept. 
+        This will be dealt with internally."
+  )
+  
+  # Replace formula with proper names for response and treatment
+  newform <- gsub(response_col, "response", form)
+  newform <- gsub(treat_col, "treat", newform)
+  
+  # Extract covariate names from formula
+  vars <- strsplit(newform, c("(~|\\+|:|\\*)"))[[1]]
+  vars <- sapply(vars, function(x) gsub(" ", "", x))
+  
+  # Check to make sure that response and treatment columns
+  # are in the formula
+  if(vars[1] != "response") stop("Must include response variable on LHS of formula.")
+  if(!"treat" %in% vars) stop("Must include treatment variable in formula.")
+  
+  vars <- vars[!vars %in% c("response", "treat")]
+  vars <- unique(vars)
+  
+  # Add in a zero for no intercept
+  newform <- gsub("~", "~ 0 +", newform)
+  
+  return(list(newform, vars))
+}
+
 #' Takes a data frame and converts it to a list with
 #' the attributes as specified by the names passed to ...
 #'
@@ -103,13 +134,39 @@ validate.RoboDataTTE <- function(data){
     att_name <- names(atts)[i]
     att <- atts[[i]]
     
-    if(!grepl("col", att_name)) stop(paste0("Unrecognized column arguments ",
-                                            att_name, ". All columns must have
+    if(att_name == "formula"){
+
+      if(is.null(att)) next
+      
+      response_col <- atts["response_col"]
+      treat_col <- atts["treat_col"]
+      
+      if(is.null(response_col)) stop("Must provide a response column name.")
+      if(is.null(treat_col)) stop("Must provide a treatment column name.")
+      
+      # Edit formula and get names of formula variables
+      # The function below returns a list with [[1]] formula and [[2]] formula variable names
+      forms <- .edit.formula(att, response_col, treat_col)
+      
+      # Include the covariates that will be needed for the formula
+      # in a formula vector
+      data[["formula"]] <- forms[[1]]
+      data[["formula_vars"]] <- df[forms[[2]]]
+      
+    } else if(grepl("col", att_name)){
+      
+      att_name <- gsub("_cols", "", att_name)
+      att_name <- gsub("_col", "", att_name)
+      
+      data[[att_name]] <- df[att]
+      
+    } else {
+      
+      stop(paste0("Unrecognized column arguments ",
+                  att_name, ". All columns must have
                                             _col or _cols as a suffix."))
-    att_name <- gsub("_cols", "", att_name)
-    att_name <- gsub("_col", "", att_name)
-    
-    data[[att_name]] <- df[att]
+      
+    }
   }
   class(data) <- c("Data", classname)
   
@@ -117,6 +174,7 @@ validate.RoboDataTTE <- function(data){
 }
 
 .make.data <- function(df, classname, ...){
+
   # Convert data frame to object
   data <- .df.toclass(df, classname, ...)
   
@@ -129,6 +187,7 @@ validate.RoboDataTTE <- function(data){
   if(!is.null(data$strata)){
     # Create joint strata levels
     data$joint_strata <- joint.strata(data$strata)
+    data$joint_strata_levels <- levels(data$joint_strata)
     
     # Make sure all strata are factors
     for(col in colnames(data$strata)){
