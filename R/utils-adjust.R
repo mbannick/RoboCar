@@ -18,7 +18,7 @@
 
 #' Get design matrix for the specified adjustment variables
 #' using the data stored.
-.get.dmat <- function(data, adj_vars){
+.get.dmat <- function(data, adj_vars, center=TRUE){
   if(is.null(adj_vars)){
     dmat <- NULL
   } else if(adj_vars == "x"){
@@ -35,6 +35,8 @@
     stop(paste("Unrecognized adjustment variable type ", adj_vars))
   }
   modmat <- model.matrix(~ 0 + ., data=data.frame(dmat))
-  modmat <- t(t(modmat) - colMeans(modmat))
+  if(center){
+    modmat <- t(t(modmat) - colMeans(modmat))
+  }
   return(modmat)
 }

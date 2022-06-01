@@ -8,7 +8,7 @@ predictions.GLMModel <- function(model, data, mod){
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars)
+  dmat <- .get.dmat(data, model$adj_vars, center=FALSE)
   df <- cbind(df, dmat)
   preds <- predict(mod, newdata=df, type="response")
   return(preds)
@@ -114,7 +114,7 @@ aipw <- function(model, data, mod){
 adjust.GLMModel <- function(model, data){
   
   # Get the generalized linear model and estimates by AIPW
-  glmod <- linmod(model, data, family=model$g_family)
+  glmod <- linmod(model, data, family=model$g_family, center=FALSE)
   estimate <- aipw(model, data, glmod)
   
   # Compute the asymptotic variance

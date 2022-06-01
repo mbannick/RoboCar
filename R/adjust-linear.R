@@ -6,31 +6,31 @@
 #' 
 #' @param model Object of class LinModel
 #' @param data Object of class RoboDataLinear
-linmod <- function(model, data, family){
+linmod <- function(model, data, family, center=TRUE){
   UseMethod("linmod", model)
 }
 
 #' Fits a linear model to use in ANOVA
 #' 
 #' @inheritParams linmod
-linmod.ANOVA <- function(model, data, family=gaussian){
+linmod.ANOVA <- function(model, data, family=gaussian, center=TRUE){
   df <- data.frame(
     treat=data$treat,
     response=data$response
   )
-  mod <- glm(response ~ 0 + treat, data=df, family=family)
+  mod <- glm(response ~ 0 + treat, data=df, family=family, center=TRUE)
   return(mod)
 }
 
 #' Fits a linear model to use in ANCOVA
 #' 
 #' @inheritParams linmod
-linmod.ANCOVA <- function(model, data, family=gaussian){
+linmod.ANCOVA <- function(model, data, family=gaussian, center=TRUE){
   df <- data.frame(
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars)
+  dmat <- .get.dmat(data, model$adj_vars, center=center)
   df <- cbind(df, dmat)
   mod <- glm(response ~ 0 + treat + ., data=df, family=family)
   return(mod)
@@ -39,12 +39,12 @@ linmod.ANCOVA <- function(model, data, family=gaussian){
 #' Fits a linear model to use in ANHECOVA
 #' 
 #' @inheritParams linmod
-linmod.ANHECOVA <- function(model, data, family=gaussian){
+linmod.ANHECOVA <- function(model, data, family=gaussian, center=TRUE){
   df <- data.frame(
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars)
+  dmat <- .get.dmat(data, model$adj_vars, center=center)
   df <- cbind(df, dmat)
   mod <- glm(response ~ 0 + treat + treat:., data=df, family=family)
   return(mod)
@@ -54,12 +54,12 @@ linmod.ANHECOVA <- function(model, data, family=gaussian){
 #' formula.
 #' 
 #' @inheritParams linmod
-linmod.CUSTOM <- function(model, data, family=gaussian){
+linmod.CUSTOM <- function(model, data, family=gaussian, center=TRUE){
   df <- data.frame(
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars)
+  dmat <- .get.dmat(data, model$adj_vars, center=center)
   df <- cbind(df, dmat)
   mod <- glm(as.formula(data$formula), data=df, family=family)
   return(mod)
