@@ -119,7 +119,8 @@ adjust.GLMModel <- function(model, data){
   
   # Compute the asymptotic variance
   asympt.variance <- vcov_car(model, data, glmod)
-  variance <- asympt.variance / data$n
+  vcov_wt <- .get.vcovHC(model$vcovHC, n=data$n, p=glmod$rank)
+  variance <- asympt.variance * vcov_wt / data$n
   
   result <- format.results(data$treat_levels, estimate, variance)
   

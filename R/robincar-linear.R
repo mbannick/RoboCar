@@ -25,7 +25,7 @@
 #'                            covariate_cols=c("x1", "x3"),
 #'                            car_scheme="simple",
 #'                            adj_method="ANOVA",
-#'                            vcovHC="HC0")
+#'                            vcovHC="HC3")
 #' fit.ancova<-robincar_linear(df = data, 
 #'                            response_col="y",
 #'                            treat_col="A",
@@ -79,7 +79,7 @@
 #'                            covariate_cols=c("x1", "x2"),
 #'                            car_scheme="biased-coin",
 #'                            adj_method="ANCOVA",
-#'                            vcovHC="HC0")
+#'                            vcovHC="HC2")
 #' fit.anhecova<-robincar_linear(df = df, 
 #'                            response_col="y",
 #'                            treat_col="A",
