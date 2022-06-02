@@ -9,7 +9,7 @@
 .x.miss.warn <- function() warning("Covariates not specified, but adjustment desired. Changing method to ANOVA.")
 .z.miss.err <- function() stop("No strata specified, but covariate-adaptive randomization desired. Please provide strata.")
 
-.form.warn <- function() warning("Formula specified; ignoring arguments for covariate and strata variables and overriding adjustment method.")
+.form.warn <- function() warning("Formula specified; ignoring arguments for covariate variables and overriding adjustment method.")
 
 .car.min.err <- function() stop("Minimization is not compatible with desired adjustment method. Please use ANHECOVA instead.")
 

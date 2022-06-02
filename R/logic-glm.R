@@ -27,10 +27,15 @@ glmlogic <- function(adj_method, x_exists, z_exists, car_scheme, cov_strata,
   pu_funcs <- function(){}
 
   if(!is.null(formula)){
-    .form.warn()
     method <- "CUSTOM"
-    pu_funcs <- .pu.warn
-    pu_joint_z <- FALSE
+    if(x_exists) .form.warn()
+    if(z_exists & car_scheme != "simple"){
+      pu_funcs <- c(.pu.z.calibrate, .pu.z.err)
+      pu_joint_z <- TRUE
+    } else {
+      pu_funcs <- .pu.warn
+      pu_joint_z <- FALSE
+    }
     adj_vars <- "formula"
   } else {
     if(car_scheme == "simple"){
