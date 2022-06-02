@@ -28,6 +28,7 @@ glmlogic <- function(adj_method, x_exists, z_exists, car_scheme, cov_strata,
 
   if(!is.null(formula)){
     method <- "CUSTOM"
+    adj_vars <- "formula"
     if(x_exists) .form.warn()
     if(z_exists & car_scheme != "simple"){
       pu_funcs <- c(.pu.z.calibrate, .pu.z.err)
@@ -36,7 +37,6 @@ glmlogic <- function(adj_method, x_exists, z_exists, car_scheme, cov_strata,
       pu_funcs <- .pu.warn
       pu_joint_z <- FALSE
     }
-    adj_vars <- "formula"
   } else {
     if(car_scheme == "simple"){
       if(z_exists) .z.exist.warn()
