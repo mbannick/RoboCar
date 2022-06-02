@@ -92,10 +92,6 @@ validate.RoboDataTTE <- function(data){
   # because we will do this manually.
   # This might not capture all specs that users could input --
   # come back to this later to make more robust checks.
-  if(grepl("(~0\\+|~1\\+)",gsub(" ", "", form))) stop(
-    "Do not put a 1 in formula for intercept. 
-        This will be dealt with internally."
-  )
   
   # Replace formula with proper names for response and treatment
   newform <- gsub(response_col, "response", form)
@@ -110,11 +106,8 @@ validate.RoboDataTTE <- function(data){
   if(vars[1] != "response") stop("Must include response variable on LHS of formula.")
   if(!"treat" %in% vars) stop("Must include treatment variable in formula.")
   
-  vars <- vars[!vars %in% c("response", "treat")]
+  vars <- vars[!vars %in% c("response", "treat", "0", "1")]
   vars <- unique(vars)
-  
-  # Add in a zero for no intercept
-  newform <- gsub("~", "~ 0 +", newform)
   
   return(list(newform, vars))
 }
