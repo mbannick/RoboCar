@@ -18,7 +18,7 @@ linmod.ANOVA <- function(model, data, family=gaussian, center=TRUE){
     treat=data$treat,
     response=data$response
   )
-  mod <- glm(response ~ 0 + treat, data=df, family=family, center=TRUE)
+  mod <- glm(response ~ 0 + treat, data=df, family=family)
   return(mod)
 }
 
@@ -84,5 +84,11 @@ adjust.LinModel <- function(model, data){
   est <- coef(mod)[1:data$k]
   result <- format.results(data$treat_levels, est, variance)
   
-  return(list(result=result, varcov=variance, settings=model))
+  return(
+    structure(
+      class="LinModelResult",
+      list(result=result, varcov=variance, settings=model, 
+           data=data, mod=mod)
+    )
+  )
 }

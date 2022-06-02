@@ -17,6 +17,7 @@
 #' @param formula An optional formula to use for adjustment specified using as.formula("..."). This overrides strata_cols and covariate_cols.
 #' 
 #' @import dplyr
+#' @import magrittr
 #' @export
 #' @examples 
 #' n <- 1000

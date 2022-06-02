@@ -5,9 +5,10 @@ APPLICABLE.SCHEMES <- c("permuted-block",
                         "biased-coin",
                         "urn")
 
-GENERIC.SETTINGS <- function(method){
+GENERIC.SETTINGS <- function(method, car_scheme){
   return(list(
     method=method,
+    car_scheme=car_scheme,
     omegaz_func=NULL,
     adj_vars=NULL
   ))
@@ -19,7 +20,7 @@ lmlogic <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
 
 lmlogic.ANOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
   
-  s <- GENERIC.SETTINGS("ANOVA")
+  s <- GENERIC.SETTINGS("ANOVA", car_scheme)
   
   if(car_scheme == "simple"){
     if(x_exists) .x.exist.warn()
@@ -41,7 +42,7 @@ lmlogic.ANOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
 
 lmlogic.ANCOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
 
-  s <- GENERIC.SETTINGS("ANCOVA")
+  s <- GENERIC.SETTINGS("ANCOVA", car_scheme)
   
   if(car_scheme == "simple"){
     if(z_exists) .z.exist.warn.simple()
@@ -80,7 +81,7 @@ lmlogic.ANCOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
 
 lmlogic.ANHECOVA <- function(meth, x_exists, z_exists, car_scheme, cov_strata){
   
-  s <- GENERIC.SETTINGS("ANHECOVA")
+  s <- GENERIC.SETTINGS("ANHECOVA", car_scheme)
   
   if(car_scheme == "simple"){
     if(z_exists) .z.exist.warn.simple()

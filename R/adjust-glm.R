@@ -95,14 +95,6 @@ predictions.GLMModel <- function(model, data, mod){
   return(mutilde)
 }
 
-aipw <- function(model, data, mod){
-
-  mutilde <- .get.mutilde(model, data, mod)
-  est <- colMeans(mutilde)
-  
-  return(est)
-}
-
 #' Perform GLM adjustment, based on the classes
 #' of the model. Will perform adjustment based on the linear
 #' model type of `model` and also do G-computation or AIPW
@@ -115,7 +107,11 @@ adjust.GLMModel <- function(model, data){
   
   # Get the generalized linear model and estimates by AIPW
   glmod <- linmod(model, data, family=model$g_family, center=FALSE)
-  estimate <- aipw(model, data, glmod)
+  
+  # Get mutilde from the GLM model, then estimate the treatment means by
+  # taking the mean over all of the potential outcomes
+  mutilde <- .get.mutilde(model, data, mod)
+  est <- colMeans(mutilde)
   
   # Compute the asymptotic variance
   asympt.variance <- vcov_car(model, data, glmod)
@@ -124,5 +120,5 @@ adjust.GLMModel <- function(model, data){
   
   result <- format.results(data$treat_levels, estimate, variance)
   
-  return(list(result=result, varcov=variance, settings=model))
+  return(list(result=result, varcov=variance, mutilde=mutilde, settings=model))
 }
