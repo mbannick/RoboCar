@@ -23,17 +23,19 @@
 #'                            treat_col="A",
 #'                            strata_cols=c("z1", "z2"),
 #'                            covariate_cols=c("x1", "x3"),
-#'                            car_scheme="simple",
-#'                            adj_method="ANOVA",
-#'                            vcovHC="HC3")
+#'                            car_scheme="biased-coin",
+#'                            adj_method="ANCOVA",
+#'                            vcovHC="HC0",
+#'                            covariate_to_include_strata=TRUE)
 #' fit.ancova<-robincar_linear(df = data, 
 #'                            response_col="y",
 #'                            treat_col="A",
 #'                            strata_cols=c("z1", "z2"),
 #'                            covariate_cols=c("x1", "x3"),
-#'                            car_scheme="simple",
-#'                            adj_method="ANCOVA",
-#'                            vcovHC="HC0")
+#'                            car_scheme="biased-coin",
+#'                            adj_method="ANHECOVA",
+#'                            vcovHC="HC0",
+#'                            covariate_to_include_strata=TRUE)
 #' fit.anhecova<-robincar_linear(df = data, 
 #'                            response_col="y",
 #'                            treat_col="A",
@@ -42,7 +44,7 @@
 #'                            car_scheme="biased-coin",
 #'                            adj_method="ANHECOVA",
 #'                            vcovHC="HC0",
-#'                            covariate_to_include_strata=FALSE)
+#'                            covariate_to_include_strata=TRUE)
 #'                            
 #' fit.anova<-robincar_linear(df = data, 
 #'                            response_col="y",

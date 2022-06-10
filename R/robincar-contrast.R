@@ -107,14 +107,20 @@ robincar_contrast <- function(result, contrast_h, contrast_dh=NULL){
   
   # Create contrast settings
   settings <- contrast.settings(k, contrast_h, contrast_dh)
-
+  
   # Run the contrast function
   c_result <- contrast(
     settings, 
-    treat=result$treat, 
+    treat=result$result$treat, 
     est=result$result$estimate, 
     varcov=result$varcov
   )
-  
-  return(c_result)
+  return(
+    structure(
+      class="ContrastResult",
+      list(result=c_result$result, 
+           varcov=c_result$varcov,
+           settings=settings)
+    )
+  )
 }

@@ -30,9 +30,14 @@ linmod.ANCOVA <- function(model, data, family=gaussian, center=TRUE){
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars, center=center)
+  dmat <- .get.dmat(data, model$adj_vars)
+  if(center) dmat <- .center.dmat(dmat)
   df <- cbind(df, dmat)
-  mod <- glm(response ~ 0 + treat + ., data=df, family=family)
+  if(center){
+    mod <- glm(response ~ 0 + treat + ., data=df, family=family)
+  } else {
+    mod <- glm(response ~ 1 + treat + ., data=df, family=family)
+  }
   return(mod)
 }
 
@@ -44,9 +49,14 @@ linmod.ANHECOVA <- function(model, data, family=gaussian, center=TRUE){
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars, center=center)
+  dmat <- .get.dmat(data, model$adj_vars)
+  if(center) dmat <- .center.dmat(dmat)
   df <- cbind(df, dmat)
-  mod <- glm(response ~ 0 + treat + treat:., data=df, family=family)
+  if(center){
+    mod <- glm(response ~ 0 + treat:., data=df, family=family)
+  } else {
+    mod <- glm(response ~ 1 + treat:., data=df, family=family)
+  }
   return(mod)
 }
 
@@ -59,7 +69,8 @@ linmod.CUSTOM <- function(model, data, family=gaussian, center=TRUE){
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars, center=center)
+  dmat <- .get.dmat(data, model$adj_vars)
+  if(center) dmat <- .center.dmat(dmat)
   df <- cbind(df, dmat)
   mod <- glm(as.formula(data$formula), data=df, family=family)
   return(mod)
@@ -74,7 +85,7 @@ adjust.LinModel <- function(model, data){
 
   # Fit a model with the settings in model
   mod <- linmod(model, data)
-  
+
   # Get the simple randomization variance and adjust if necessary
   asympt.variance <- vcov_car(model, data, mod)
   vcov_wt <- .get.vcovHC(model$vcovHC, n=data$n, p=mod$rank)

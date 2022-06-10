@@ -88,11 +88,6 @@ validate.RoboDataTTE <- function(data){
   # Convert formula to character
   form <- deparse(as.formula(form))
   
-  # Check for intercept specifications, we don't want this
-  # because we will do this manually.
-  # This might not capture all specs that users could input --
-  # come back to this later to make more robust checks.
-  
   # Replace formula with proper names for response and treatment
   newform <- gsub(response_col, "response", form)
   newform <- gsub(treat_col, "treat", newform)

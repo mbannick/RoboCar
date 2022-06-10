@@ -48,7 +48,7 @@
 #'                               strata_cols=c("z1", "z2"),
 #'                               covariate_cols=c("x1"),
 #'                               car_scheme="permuted-block",
-#'                               g_family=poisson,
+#'                               g_family=binomial(link="logit"),
 #'                               g_accuracy=7,
 #'                               covariate_to_include_strata=TRUE,
 #'                               adj_method="heterogeneous",

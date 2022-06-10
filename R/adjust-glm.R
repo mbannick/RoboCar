@@ -8,7 +8,7 @@ predictions.GLMModel <- function(model, data, mod){
     treat=data$treat,
     response=data$response
   )
-  dmat <- .get.dmat(data, model$adj_vars, center=FALSE)
+  dmat <- .get.dmat(data, model$adj_vars)
   df <- cbind(df, dmat)
   preds <- predict(mod, newdata=df, type="response")
   return(preds)
@@ -31,64 +31,65 @@ predictions.GLMModel <- function(model, data, mod){
   return(pred_cols)
 }
 
-.get.mutilde <- function(model, data, mod, check_pu=TRUE){
+.get.mutilde <- function(model, data, mod){ 
   
+  # Get response
+  y <- data$response
+
   # Get g-computation predictions
   muhat <- .get.muhat(model, data, mod)
   
   # Get treatment group indicators and outcome
   t_ids <- sapply(data$treat_levels, function(x) data$treat == x)
-  y <- data$response
+  
+  if(!model$pu_joint_z){
+    # Only look within treatment groups
+    center_ids <- as.list(data.frame(t_ids))
+    center_mus <- as.list(data.frame(muhat))
+  } else {
+    # Will create matrix for combination of strata and treatment groups
+    sl <- data$joint_strata_levels
+    tl <- data$treat_levels
+    
+    # Get indicators for joint strata group
+    s_ids <- sapply(sl, function(x) data$joint_strata == x)
+    
+    # Get joint levels of treatment and strata groups
+    center_ids <- as.list(data.frame(
+      t_ids[, rep(1:ncol(t_ids), each=length(sl))] &
+        s_ids[, rep(1:ncol(s_ids), times=length(tl))]
+    ))
+    
+    # Repeat the mu columns for each strata
+    center_mus <- as.list(data.frame(muhat[, rep(1:ncol(muhat), each=length(sl))]))
+  }
   
   # Compute AIPW estimator by re-centering predictions
   # within treatment groups
-  recenter <- function(u, i, m) u - sum(u[i])/sum(i) + sum(y[i])/sum(i)
+  recenter <- function(u, i) u - sum(u[i])/sum(i) + sum(y[i])/sum(i)
   mutilde <- mapply(FUN=recenter,
-                    u=as.list(data.frame(muhat)),
-                    i=as.list(data.frame(t_ids)),
-                    m=as.list(colMeans(muhat)))
+                    u=center_mus,
+                    i=center_ids)
   
-  if(check_pu){
-    # Check prediction un-biasedness for the original muhat
-    # g-computation just for warning/error reporting,
-    # only up to level of accuracy specified by the user
-    check.pu <- function(u, i) round(mean(u[i] - y[i]), digits=model$g_accuracy)
-    
-    if(!model$pu_joint_z){
-      
-      # Check for prediction un-biasedness just based on treatment group
-      resid <- mapply(FUN=check.pu,
-                      u=as.list(data.frame(muhat)),
-                      i=as.list(data.frame(t_ids)))
-      
-    } else {
-      
-      # Will create matrix for combination of strata and treatment groups
-      sl <- data$joint_strata_levels
-      tl <- data$treat_levels
-      
-      # Get indicators for joint strata group
-      s_ids <- sapply(sl, function(x) data$joint_strata == x)
-      
-      # Calculate mean of residuals within each strata-tx group
-      resid <- mapply(
-        FUN=check.pu,
-        # Repeat the mu columns for each strata
-        u=as.list(data.frame(muhat[, rep(1:ncol(muhat), each=length(sl))])),
-        # Get joint levels of treatment and strata groups
-        i=as.list(data.frame(
-          t_ids[, rep(1:ncol(t_ids), each=length(sl))] &
-            s_ids[, rep(1:ncol(s_ids), times=length(tl))]
-        ))
-      )
-    }
-    
-    # Report warning or error messages, whatever
-    # is passed through the model settings, if not prediction unbiased.
-    if(!all(resid == 0)){
-      for(func in model$pu_funcs){
-        func()
-      }
+  # Check prediction un-biasedness for the original muhat
+  # g-computation just for warning/error reporting,
+  # only up to level of accuracy specified by the user
+  check.pu <- function(u, i) round(mean(u[i] - y[i]), 
+                                   digits=model$g_accuracy)
+  
+  # Calculate the group-specific residuals
+  # where the groups are defined as treatment or treatment x strata above
+  resid <- mapply(
+    FUN=check.pu,
+    u=center_mus,
+    i=center_ids
+  )
+  
+  # Report warning or error messages, whatever
+  # is passed through the model settings, if not prediction unbiased.
+  if(!all(resid == 0)){
+    for(func in list(model$pu_funcs)){
+      func()
     }
   }
   
@@ -110,11 +111,11 @@ adjust.GLMModel <- function(model, data){
   
   # Get mutilde from the GLM model, then estimate the treatment means by
   # taking the mean over all of the potential outcomes
-  mutilde <- .get.mutilde(model, data, mod)
-  est <- colMeans(mutilde)
+  mutilde <- .get.mutilde(model, data, glmod)
+  estimate <- colMeans(mutilde)
   
   # Compute the asymptotic variance
-  asympt.variance <- vcov_car(model, data, glmod)
+  asympt.variance <- vcov_car(model, data, glmod, mutilde)
   vcov_wt <- .get.vcovHC(model$vcovHC, n=data$n, p=glmod$rank)
   variance <- asympt.variance * vcov_wt / data$n
   

@@ -11,7 +11,7 @@ omegaz.closure <- function(car_scheme){
   
   omegaz.func <- function(pi_t){
     # TODO: Check that minimization works out to 0
-    if(car_scheme %in% c("simple", "minimization")){
+    if(car_scheme %in% c("simple", "pocock-simon")){
       omegaz <- diag(pi_t) - pi_t %*% t(pi_t)
     } else {
       omegaz <- matrix(0, nrow=length(pi_t), ncol=length(pi_t))

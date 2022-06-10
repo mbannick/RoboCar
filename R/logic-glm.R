@@ -30,7 +30,7 @@ glmlogic <- function(adj_method, x_exists, z_exists, car_scheme, cov_strata,
     method <- "CUSTOM"
     adj_vars <- "formula"
     if(x_exists) .form.warn()
-    if(z_exists & car_scheme != "simple"){
+    if(z_exists & car_scheme == "pocock-simon"){
       pu_funcs <- c(.pu.z.calibrate, .pu.z.err)
       pu_joint_z <- TRUE
     } else {

@@ -40,7 +40,8 @@
     list(
       vcovHC=vcovHC,
       omegaz_func=logic$omegaz_func,
-      adj_vars=logic$adj_vars
+      adj_vars=logic$adj_vars,
+      car_scheme=logic$car_scheme
     ),
     class=c("LinModel", logic$method)
   )

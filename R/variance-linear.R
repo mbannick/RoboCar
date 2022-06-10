@@ -62,7 +62,8 @@ vcov_sr.ANOVA <- function(model, data, mod){
 #' Gets ANCOVA asymptotic variance under simple randomization
 vcov_sr.ANCOVA <- function(model, data, mod){
   diagmat <- .vcov_sr.diag(data, mod)
-  covX <- cov(.get.dmat(data, model$adj_vars))
+  dmat <- .get.dmat(data, model$adj_vars) %>% .center.dmat
+  covX <- cov(dmat)
   
   B <- .vcov_sr.B(data, mod)
   ScriptB <- .vcov_sr.ScriptB(data, model)
@@ -88,7 +89,8 @@ vcov_sr.ANCOVA <- function(model, data, mod){
 vcov_sr.ANHECOVA <- function(model, data, mod){
 
   diagmat <- .vcov_sr.diag(data, mod)
-  covX <- cov(.get.dmat(data, model$adj_vars))
+  dmat <- .get.dmat(data, model$adj_vars) %>% .center.dmat
+  covX <- cov(dmat)
   
   ScriptB <- .vcov_sr.ScriptB(data, model)
   C <- apply(is.na(ScriptB), FUN=any, MARGIN=1)
@@ -159,7 +161,7 @@ get.erb <- function(model, data, mod, mu_hat=NULL){
   return(ERB)
 }
 
-vcov_car <- function(model, data, mod){
+vcov_car <- function(model, data, mod, ...){
   UseMethod("vcov_car", model)
 }
 
@@ -174,9 +176,7 @@ vcov_car.LinModel <- function(model, data, mod){
 }
 
 #' Gets AIPW asymptotic variance under simple randomization
-vcov_car.GLMModel <- function(model, data, mod){
-  # Get prediction matrix for AIPW
-  mutilde <- .get.mutilde(model, data, mod, check_pu=FALSE)
+vcov_car.GLMModel <- function(model, data, mod, mutilde){
   
   # Get predictions for observed treatment group
   preds <- matrix(nrow=data$n, ncol=1)

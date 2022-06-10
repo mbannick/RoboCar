@@ -18,7 +18,7 @@
 
 #' Get design matrix for the specified adjustment variables
 #' using the data stored.
-.get.dmat <- function(data, adj_vars, center=TRUE){
+.get.dmat <- function(data, adj_vars){
   if(is.null(adj_vars)){
     dmat <- NULL
   } else if(adj_vars == "x"){
@@ -28,15 +28,21 @@
   } else if(adj_vars == "joint_z"){
     dmat <- data$joint_strata
   } else if(adj_vars == "joint_z_x"){
-    dmat <- cbind(data$covariate, data$joint_strata)
+    joint_strata <- data$joint_strata
+    dmat <- cbind(data$covariate, joint_strata)
   } else if(adj_vars == "formula"){
     dmat <- data$formula_vars
   } else {
     stop(paste("Unrecognized adjustment variable type ", adj_vars))
   }
+  return(dmat)
+}
+
+#' Get design matrix for the specified adjustment variables
+#' using the data stored.
+.center.dmat <- function(dmat){
   modmat <- model.matrix(~ 0 + ., data=data.frame(dmat))
-  if(center){
-    modmat <- t(t(modmat) - colMeans(modmat))
-  }
+  modmat <- t(t(modmat) - colMeans(modmat))
   return(modmat)
 }
+
